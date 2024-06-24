@@ -1,0 +1,26 @@
+{% load static %}
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock  %}</title>
+    {% comment %} <link rel="icon" href="{% static 'path/to/favicon.ico' %}" type="image/x-icon"> {% endcomment %}
+
+    <!-- Menambahkan Tailwind CSS untuk styling -->
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    {% tailwind_css %}
+    <!-- Menambahkan CSS untuk styling -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Menambahkan Chart.js untuk visualisasi grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Menambahkan SweetAlert untuk menampilkan pesan -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+</head>
+<body class="my-bg bg-no-repeat bg-cover">
+    {% block content %}
+    {% endblock  %}
+
+</body>
+</html>

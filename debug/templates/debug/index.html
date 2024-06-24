@@ -1,0 +1,18 @@
+{% load static %}
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug</title>
+    {%tailwind_css %}
+</head>
+<body>
+    
+    <script>
+        const rawData = JSON.parse('{{ data_json|escapejs }}');
+        console.log(rawData);
+    </script>
+</body>
+</html>

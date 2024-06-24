@@ -1,0 +1,188 @@
+/* Styling untuk tabel */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+
+.ts-cyan {
+    text-shadow: 
+        1px 1px 2px rgba(255, 255, 255, 1), 
+        2px 2px 4px rgba(0, 255, 255, 0.8),
+        3px 3px 8px rgba(0, 255, 255, 0.6),
+        4px 4px 16px rgba(0, 255, 255, 0.4);
+}
+
+.ts-black-to-violet {
+  text-shadow: 
+      1px 1px 2px rgba(0, 0, 0, 0.8),
+      2px 2px 4px rgba(255, 255, 255, 0.6),
+      3px 3px 6px rgba(128, 0, 128, 0.4);
+}
+
+.ts-violet {
+  text-shadow: 
+  1px 1px 2px rgba(155, 89, 182, 1),   /* Ungu */
+  2px 2px 4px rgba(155, 89, 182, 0.8), /* Ungu dengan opasitas 0.8 */
+  3px 3px 8px rgba(142, 68, 173, 0.6), /* Ungu tua dengan opasitas 0.6 */
+  4px 4px 16px rgba(108, 52, 131, 0.4);/* Ungu lebih tua dengan opasitas 0.4 */
+}
+
+
+.bxs-cy {
+  box-shadow: 0 4px 8px rgba(0, 255, 255, 0.6); 
+}
+
+.ts-gold{
+    text-shadow: 
+        1px 1px 2px rgba(255, 255, 255, 1), 
+        2px 2px 4px rgba(255, 223, 0, 0.8),
+        3px 3px 8px rgba(255, 215, 0, 0.6),
+        4px 4px 16px rgba(255, 215, 0, 0.4);
+}
+
+.ts-white{
+    text-shadow: 
+        1px 1px 2px rgba(255, 255, 255, 1), 
+        2px 2px 4px rgba(255, 255, 255, 0.8),
+        3px 3px 8px rgba(255, 255, 255, 0.6),
+        4px 4px 16px rgba(255, 255, 255, 0.4);
+}
+
+.poppins-thin {
+    font-family: "Poppins", sans-serif;
+    font-weight: 100;
+    font-style: normal;
+  }
+  
+  .poppins-extralight {
+    font-family: "Poppins", sans-serif;
+    font-weight: 200;
+    font-style: normal;
+  }
+  
+  .poppins-light {
+    font-family: "Poppins", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+  }
+  
+  .poppins-regular {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+  .poppins-medium {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+  }
+  
+  .poppins-semibold {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+  }
+  
+  .poppins-bold {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+  }
+  
+  .poppins-extrabold {
+    font-family: "Poppins", sans-serif;
+    font-weight: 800;
+    font-style: normal;
+  }
+  
+  .poppins-black {
+    font-family: "Poppins", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+  }
+  
+  .poppins-thin-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 100;
+    font-style: italic;
+  }
+  
+  .poppins-extralight-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 200;
+    font-style: italic;
+  }
+  
+  .poppins-light-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 300;
+    font-style: italic;
+  }
+  
+  .poppins-regular-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+  }
+  
+  .poppins-medium-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-style: italic;
+  }
+  
+  .poppins-semibold-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: italic;
+  }
+  
+  .poppins-bold-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+  }
+  
+  .poppins-extrabold-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 800;
+    font-style: italic;
+  }
+  
+  .poppins-black-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 900;
+    font-style: italic;
+  }
+  
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #00000071;
+}
+td{
+    background-color: #00000050;
+    }
+    
+    .my-bg {
+      background-image: url('../images/hamters.webp');
+      background-attachment: fixed; /* Mengatur gambar tetap pada posisi saat discroll */
+      }
+      
+.blk{
+  background-color: #00000050;
+}
+
+

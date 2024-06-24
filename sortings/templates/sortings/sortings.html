@@ -1,0 +1,405 @@
+{% extends "layout/index.html" %}
+
+{% block title %} Sorting Algorithms Visualization{% endblock %}
+
+{% block content %}
+    <!-- Container untuk Chart.js -->
+<div class="container-lg w-screen mx-auto bg-[rgba(0,0,0,0.8)] rounded-lg shadow-lg shadow-cyan-500 overflow-hidden poppins-semibold">
+    
+    <div class="lg:w-9/12 sm:w-11/12 mx-auto pt-10">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <!-- Dropdown dan tombol untuk kontrol  -->
+    <div class="flex justify-center space-x-4 my-4">
+        <!-- Dropdown untuk memilih kriteria pengurutan -->
+        <select id="sort-select" class="bg-violet-950 text-md text-white py-2 px-4 rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400" onchange="loadInitialData()">
+            <option value="market_cap">Market Cap</option>
+            <option value="price">Price</option>
+            <option value="change_today">Change Today</option>
+        </select>
+        <!-- Dropdown untuk memilih jumlah data yang ditampilkan -->
+        <select id="num-records-select" class="bg-violet-950 text-white text-md py-2 px-8 rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400" onchange="loadInitialData()">
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="75">75</option>
+            <option value="100">100</option>
+        </select>
+        <!-- Dropdown untuk memilih metode pengurutan -->
+        <select id="sort-method-select" class="bg-violet-950 text-md text-white py-2 px-10 rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="merge">Merge Sort</option>
+            <option value="bubble">Bubble Sort</option>
+            <option value="shell">Shell Sort</option>
+        </select>
+        <!-- Tombol untuk memulai pengurutan -->
+        <button id="sort-button" class="bg-violet-700 text-white text-md py-2 px-4 rounded shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400" onclick="startSort()">Start Sort</button>
+    </div>
+        
+    <!-- Tabel untuk menampilkan data -->
+    <div class="mt-10 flex justify-center">
+        <table id="data-table" class="text-white shadow-lg shadow-violet-500 w-screen mx-40 my-5 text-md bg-[rgba(126,34,206,0.3)]">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Images</th>
+                    <th>Market Cap</th>
+                    <th>Price</th>
+                    <th>Change Today</th>
+                    <th>Country</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data akan diisi secara dinamis -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    // Mengambil data dari server
+    const rawData = JSON.parse('{{ data_json|escapejs }}');
+    // Mengonversi data menjadi array objek dengan nilai yang bisa digunakan untuk pengurutan
+    let array = rawData.map((d, index) => ({
+        ...d,
+        index: index,
+        market_cap_value: convertMarketCap(d.market_cap),
+        price_value: convertPrice(d.price),
+        change_today_value: convertChangeToday(d.change_today)
+    }));
+    // Mendapatkan konteks canvas untuk Chart.js
+    const ctx = document.getElementById('myChart').getContext('2d');
+    let chart;
+
+    // Fungsi untuk mengonversi market cap ke nilai numerik
+    function convertMarketCap(market_cap) {
+        market_cap = market_cap.replace('$', '').replace(' ', '').replace(',', '');
+        let value = parseFloat(market_cap.slice(0, -1));
+        let unit = market_cap.slice(-1);
+
+        if (unit === 'T') {
+            value = value * 1e12;
+        } else if (unit === 'B') {
+            value = value * 1e9;
+        } else if (unit === 'M') {
+            value = value * 1e6;
+        }
+        console.log(value);
+        return value;
+    }
+
+    // Fungsi untuk mengonversi harga ke nilai numerik
+    function convertPrice(price) {
+        price = price.replace('$', '').replace(' ', '');
+        if (price.includes('.') || price.includes(',')) {
+            price = price.replace(/\./g, '').replace(/,/g, '');
+        }
+        console.log(parseFloat(price));
+        return parseFloat(price);
+    }
+
+    // Fungsi untuk mengonversi perubahan hari ini ke nilai numerik
+    function convertChangeToday(change_today) {
+        change_today = change_today.replace('%', '').replace(' ', '').replace(',', '');
+        return parseFloat(change_today);
+    }
+
+    // Fungsi untuk membuat chart menggunakan Chart.js
+    function createChart(arr, key) {
+        const labels = arr.map(d => d.name);
+        const values = arr.map(d => d[key]);
+
+        if (chart) {
+            chart.destroy();
+        }
+
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: key.replace('_', ' ').toUpperCase(),
+                    data: values,
+                    backgroundColor: 'rgba(147, 51, 234, 0.8)',
+                    borderColor: 'rgba(255, 255, 255, .8)',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                animation: {
+                    duration: 0 // menonaktifkan animasi default Chart.js
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: 'white' // warna teks pada sumbu y
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'white' // warna teks pada sumbu x
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Fungsi untuk menjalankan Merge Sort secara rekursif
+    async function mergeSort(arr, l, r, key) {
+        if (l >= r) return;
+
+        const mid = l + Math.floor((r - l) / 2);
+        await mergeSort(arr, l, mid, key);
+        await mergeSort(arr, mid + 1, r, key);
+        await merge(arr, l, mid, r, key);
+    }
+
+    // Fungsi untuk menggabungkan hasil Merge Sort
+    async function merge(arr, l, mid, r, key) {
+        const n1 = mid - l + 1;
+        const n2 = r - mid;
+
+        const L = new Array(n1);
+        const R = new Array(n2);
+
+        for (let i = 0; i < n1; i++) L[i] = arr[l + i];
+        for (let i = 0; i < n2; i++) R[i] = arr[mid + 1 + i];
+
+        let i = 0, j = 0, k = l;
+
+        while (i < n1 && j < n2) {
+            if (L[i][key] <= R[j][key]) {
+                arr[k] = L[i];
+                i++;
+            } else {
+                arr[k] = R[j];
+                j++;
+            }
+            k++;
+            await updateChart(arr, key);
+            updateTable(arr);
+        }
+
+        while (i < n1) {
+            arr[k] = L[i];
+            i++;
+            k++;
+            await updateChart(arr, key);
+            updateTable(arr);
+        }
+
+        while (j < n2) {
+            arr[k] = R[j];
+            j++;
+            k++;
+            await updateChart(arr, key);
+            updateTable(arr);
+        }
+    }
+
+    // Fungsi untuk menjalankan Bubble Sort
+    async function bubbleSort(arr, key) {
+        let n = arr.length;
+        for (let i = 0; i < n - 1; i++) {
+            for (let j = 0; j < n - i - 1; j++) {
+                if (arr[j][key] > arr[j + 1][key]) {
+                    [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+                }
+                await updateChart(arr, key);
+                updateTable(arr);
+            }
+        }
+    }
+
+    // Fungsi untuk menjalankan Shell Sort
+    async function shellSort(arr, key) {
+        let n = arr.length;
+        for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+            for (let i = gap; i < n; i++) {
+                let temp = arr[i];
+                let j;
+                for (j = i; j >= gap && arr[j - gap][key] > temp[key]; j -= gap) {
+                    arr[j] = arr[j - gap];
+                    await updateChart(arr, key);
+                    updateTable(arr);
+                }
+                arr[j] = temp;
+                await updateChart(arr, key);
+                updateTable(arr);
+            }
+        }
+    }
+
+    // Fungsi untuk memulai proses sorting
+    async function startSort() {
+        const sortBy = document.getElementById('sort-select').value;
+        const sortMethod = document.getElementById('sort-method-select').value;
+        const numRecords = parseInt(document.getElementById('num-records-select').value);
+        let limitedArray = array.slice(0, numRecords);
+        document.getElementById('sort-button').disabled = true;
+        document.getElementById('sort-select').disabled = true;
+        document.getElementById('num-records-select').disabled = true;
+        createChart(limitedArray, `${sortBy}_value`);
+
+        // Mengukur waktu mulai sorting
+        const startTime = performance.now();
+
+        // Menjalankan metode sorting yang dipilih
+        if (sortMethod === 'merge') {
+            await mergeSort(limitedArray, 0, limitedArray.length - 1, `${sortBy}_value`);
+        } else if (sortMethod === 'bubble') {
+            await bubbleSort(limitedArray, `${sortBy}_value`);
+        } else if (sortMethod === 'shell') {
+            await shellSort(limitedArray, `${sortBy}_value`);
+        }
+
+        // Mengukur waktu selesai sorting
+        const endTime = performance.now();
+        const timeTaken = endTime - startTime;
+
+        // Menghitung statistik deskriptif
+        const mean = calculateMean(limitedArray, `${sortBy}_value`);
+        const median = calculateMedian(limitedArray, `${sortBy}_value`);
+        const variance = calculateVariance(limitedArray, `${sortBy}_value`);
+        const confidenceInterval = calculateConfidenceInterval(mean, variance, limitedArray.length);
+
+        // Memperbarui data asli
+        updateOriginalData();
+        document.getElementById('sort-button').disabled = false;
+        document.getElementById('sort-select').disabled = false;
+        document.getElementById('num-records-select').disabled = false;
+        reverseTable(); // Membalik tabel setelah sorting selesai
+
+        // Menampilkan waktu sorting dan statistik menggunakan SweetAlert
+        Swal.fire({
+            title: 'Sorting Complete',
+            html: `
+                <p>Sorting took ${timeTaken.toFixed(2)} milliseconds</p>
+            `,
+            // html: `
+                // <p>Sorting took ${timeTaken.toFixed(2)} milliseconds</p>
+                // <p>Mean: ${mean.toFixed(2)}</p>
+                // <p>Median: ${median.toFixed(2)}</p>
+                // <p>Variance: ${variance.toFixed(2)}</p>
+                // <p>Confidence Interval (95%): [${confidenceInterval.lower.toFixed(2)}, ${confidenceInterval.upper.toFixed(2)}]</p>
+            //`,
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    }
+
+    // Fungsi untuk menghitung mean
+    function calculateMean(arr, key) {
+        const sum = arr.reduce((acc, item) => acc + item[key], 0);
+        return sum / arr.length;
+    }
+
+    // Fungsi untuk menghitung median
+    function calculateMedian(arr, key) {
+        const sorted = arr.map(item => item[key]).sort((a, b) => a - b);
+        const mid = Math.floor(sorted.length / 2);
+        return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+    }
+
+    // Fungsi untuk menghitung variance
+    function calculateVariance(arr, key) {
+        const mean = calculateMean(arr, key);
+        const sumOfSquares = arr.reduce((acc, item) => acc + Math.pow(item[key] - mean, 2), 0);
+        return sumOfSquares / (arr.length - 1);
+    }
+
+    // Fungsi untuk menghitung 95% confidence interval
+    function calculateConfidenceInterval(mean, variance, n) {
+        const z = 1.96; // Z-score untuk 95% confidence interval
+        const marginOfError = z * Math.sqrt(variance / n);
+        return {
+            lower: mean - marginOfError,
+            upper: mean + marginOfError
+        };
+    }
+
+    // Fungsi untuk memuat data awal tanpa sorting
+    function loadInitialData() {
+        const sortBy = document.getElementById('sort-select').value;
+        const numRecords = parseInt(document.getElementById('num-records-select').value);
+
+        let limitedArray = array.slice(0, numRecords);
+        createChart(limitedArray, `${sortBy}_value`);
+        updateTable(limitedArray);
+    }
+
+    // Fungsi untuk memperbarui tabel dengan data yang telah diurutkan
+    function updateTable(sortedArray) {
+        const dataTable = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+        dataTable.innerHTML = '';
+        sortedArray.forEach(item => {
+            const row = document.createElement('tr');
+            const rankCell = document.createElement('td');
+            const nameCell = document.createElement('td');
+            const marketCapCell = document.createElement('td');
+            const priceCell = document.createElement('td');
+            const changeTodayCell = document.createElement('td');
+            const countryCell = document.createElement('td');
+
+            // Membuat elemen gambar
+            const img = document.createElement('img');
+            img.src = `https://companiesmarketcap.com${item.img_src}`; // Ganti dengan path gambar yang sesuai
+            img.alt = item.name;
+
+            // Menambahkan gambar ke dalam elemen <td>
+            const imageCell = document.createElement('td');
+            imageCell.appendChild(img);
+
+            rankCell.textContent = item.rank;
+            nameCell.textContent = item.name;
+            marketCapCell.textContent = item.market_cap;
+            priceCell.textContent = item.price;
+            changeTodayCell.textContent = item.change_today;
+            countryCell.textContent = item.country;
+
+            row.appendChild(rankCell);
+            row.appendChild(nameCell);
+            row.appendChild(imageCell); // Menambahkan sel gambar ke dalam baris
+            row.appendChild(marketCapCell);
+            row.appendChild(priceCell);
+            row.appendChild(changeTodayCell);
+            row.appendChild(countryCell);
+
+            dataTable.appendChild(row);
+        });
+    }
+
+    // Fungsi untuk memperbarui chart dengan data yang diurutkan
+    async function updateChart(arr, key) {
+        const labels = arr.map(d => d.name);
+        const values = arr.map(d => d[key]);
+
+        chart.data.labels = labels;
+        chart.data.datasets[0].data = values;
+        chart.update();
+        await new Promise(resolve => setTimeout(resolve, 100)); // Membuat delay untuk animasi
+    }
+
+    // Fungsi untuk memperbarui data asli dengan data yang diurutkan
+    function updateOriginalData() {
+        array.forEach((item, index) => {
+            rawData[item.index] = item;
+        });
+    }
+
+    // Fungsi untuk membalik urutan tabel
+    function reverseTable() {
+        const dataTable = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+        const rows = Array.from(dataTable.rows);
+        dataTable.innerHTML = '';
+        rows.reverse().forEach(row => dataTable.appendChild(row));
+    }
+
+    // Memuat data awal ketika halaman dimuat
+    document.addEventListener('DOMContentLoaded', () => {
+        loadInitialData();
+    });
+</script>
+{% endblock %}
