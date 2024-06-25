@@ -60,6 +60,8 @@
 <script>
     // Mengambil data dari server
     const rawData = JSON.parse('{{ data_json|escapejs }}');
+    // Debugg untuk melihat data yang di ambail
+    // console.log(rawData);
     // Mengonversi data menjadi array objek dengan nilai yang bisa digunakan untuk pengurutan
     let array = rawData.map((d, index) => ({
         ...d,
